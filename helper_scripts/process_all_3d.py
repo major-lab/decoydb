@@ -123,22 +123,6 @@ for index, hairpin_dict in enumerate(list_digested_data):
                                                                                       out=hairpin_out_dir,
                                                                                       subdecoy_dir=destination_dir))
 
-#                     local_list_command.append(('python /u/leongs/git/various-codes/DecoyDB/3_structure_verificator.py '
-#                                                '--hairpin_seq "{seq}" '
-#                                                '--mature5p_seq "{mature_5p}" '
-#                                                '--mature3p_seq "{mature_3p}" '
-#                                                '--structure "{struct}" '
-#                                                '--decoy_dir {subdecoy_dir} '
-#                                                '--refine_script /u/leongs/git/various-codes/DecoyDB/minimization_scripts/refine.py '
-#                                                '--relieve_script /u/leongs/git/various-codes/DecoyDB/minimization_scripts/relieve.py '
-#                                                '--brushup_script /u/leongs/git/various-codes/DecoyDB/minimization_scripts/brushup.py '
-#                                                '--out_dir {out} --threads 1 ').format(seq=hairpin_seq,
-#                                                                                       struct=structure,
-#                                                                                       mature_5p=mat_5p,
-#                                                                                       mature_3p=mat_3p,
-#                                                                                       out=hairpin_out_dir,
-#                                                                                       subdecoy_dir=destination_dir))
-
                     local_list_command.append("rm -rf " + destination_dir)
 
     if local_list_command:

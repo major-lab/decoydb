@@ -10,11 +10,7 @@ dict_digested_data = dict()
 with open(digested_data_pk, 'rb') as dd:
     dict_digested_data = dict((hairpin_dict["accession"], hairpin_dict) for hairpin_dict in cPickle.load(dd))
 
-for proc in ["/u/leongs/reproduction_projet_naim/rel20/3D/processed_11_feb/decoy",
-             "/u/leongs/reproduction_projet_naim/rel20/3D/processed_17_feb/decoy",
-             "/u/leongs/reproduction_projet_naim/rel20/3D/processed_19_feb/decoy",
-             "/u/leongs/reproduction_projet_naim/rel20/3D/processed_21_feb/decoy",
-             "/u/leongs/reproduction_projet_naim/rel20/3D/processed_24_feb/decoy"]:
+for proc in ["/u/leongs/reproduction_projet_naim/rel20/3D/processed_10_mar/decoy", ]:
     for acc in os.listdir(proc):
         mcfold_output = os.path.join(flashfold_dir, acc)
         with open(mcfold_output, 'rb') as mcfold_o:
@@ -25,9 +21,9 @@ for proc in ["/u/leongs/reproduction_projet_naim/rel20/3D/processed_11_feb/decoy
             index = out_pdb.split("-")[0].split("_")[1]
             struct = list_struct[int(index)].split()[0]
 
-            dest_dir = os.path.join(success_dir, acc)
-            if not os.path.exists(dest_dir):
-                os.mkdir(dest_dir)
+#             dest_dir = os.path.join(success_dir, acc)
+#             if not os.path.exists(dest_dir):
+#                 os.mkdir(dest_dir)
 
 #             shutil.copy(os.path.join(out_dir, out_pdb),
 #                         os.path.join(dest_dir, out_pdb))
