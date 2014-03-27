@@ -4,11 +4,11 @@ not_finished_file = "/u/leongs/reproduction_projet_naim/rel20/3D/processed_10_ma
 
 not_finished_list = []
 
-with open(not_finished_file, 'rb') as nff:
-    not_finished_list = [elem.strip() for elem in nff if elem.strip()]
+# with open(not_finished_file, 'rb') as nff:
+#     not_finished_list = [elem.strip() for elem in nff if elem.strip()]
 
 old_decoy_dir = "/u/leongs/reproduction_projet_naim/rel20/3D/processed_10_mar/decoy"
-new_decoy_dir = "/u/leongs/reproduction_projet_naim/rel20/3D/finished_processing_26_mar"
+new_decoy_dir = "/u/leongs/reproduction_projet_naim/rel20/3D/finished_processing_27_mar"
 
 for acc in sorted(os.listdir(old_decoy_dir)):
     if acc not in not_finished_list:

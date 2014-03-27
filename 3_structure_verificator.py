@@ -343,12 +343,6 @@ if __name__ == '__main__':
                         required=True,
                         dest='out_dir',
                         help="The path where the valid PDB will be copied to")
-    parser.add_argument('--threads',
-                        action="store",
-                        dest='threads',
-                        type=int,
-                        default=1,
-                        help="Number of threads to run the process in")
 
     ns = parser.parse_args()
 
@@ -361,7 +355,6 @@ if __name__ == '__main__':
     relieve_script = ns.relieve_script
     brushup_script = ns.brushup_script
     out_dir = ns.out_dir
-    threads = ns.threads
 
     start_5p, end_5p, start_3p, end_3p = compute_matures_indexes(hairpin_seq, structure, mature5p_seq, mature3p_seq)
 
@@ -389,5 +382,3 @@ if __name__ == '__main__':
                 break
             else:
                 found = process_pdb(params_dict)
-#         pool = multiprocessing.Pool(threads)
-#         pool.map(process_pdb, list_params_dict, chunksize=1)

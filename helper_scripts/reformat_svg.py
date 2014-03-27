@@ -75,7 +75,7 @@ def process_precursor(pk_filepath, svg_filepath, out_filepath):
 
         dict_color[str(list_color_lvl[int(st)-1])].append(dict(subnode=elem,
                                                                index=int(st)-1))
-        elem["onmouseover"] = elem["onmouseover"].replace("')", ", {perc:.2f}%')".format(perc=float(pickled_dict["list_stats"][int(st)-1]["not_paired"])*100))
+        elem["onmouseover"] = elem["onmouseover"].replace("')", ", {perc}%')".format(perc=int(pickled_dict["list_stats"][int(st)-1]["not_paired"])*100))
 
     for color, list_subnodes in dict_color.iteritems():
         color_node = etree.SubElement(desired_node,
@@ -86,7 +86,7 @@ def process_precursor(pk_filepath, svg_filepath, out_filepath):
             subnode = subnode_dict["subnode"]
             
             if subnode_index in pickled_dict["mature_range"]:
-                fill_dict = {"stroke": "PaleGoldenrod",
+                fill_dict = {"stroke": "Blue",
                              "stroke-width": "1"}
             else:
                 fill_dict = {"stroke": "none"}
