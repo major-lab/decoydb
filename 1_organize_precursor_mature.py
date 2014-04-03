@@ -40,7 +40,7 @@ def extract_seq(input_file):
                     else:
                         seq += curr_line.strip()
                         j += 1
-                result_dict[acc] = dict(name=name, accession=acc, sequence=seq, header=header)
+                result_dict[acc] = dict(name=name, accession=acc, sequence=seq, header=header, alternative_name=name)
                 i = j
             else:
                 i += 1

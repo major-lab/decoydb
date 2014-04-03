@@ -1,6 +1,8 @@
 import os
 import cPickle
 import argparse
+import shutil
+import json
 
 def extract_pairing(structure):
     dict_open = dict()
@@ -33,13 +35,13 @@ if __name__ == '__main__':
     parser.add_argument('--best_struct_dir', action="store", required=True,
                         dest="best_struct_dir", help="Output dir for the structures")
     parser.add_argument('--pseudoviewer_dir', action="store", required=True,
-                        dest='decoy_dir',
+                        dest='pseudoviewer_dir',
                         help="The directory where the FASTA type input for pseudoviewer will be put")
 
     ns = parser.parse_args()
 
     flashfold_dir = ns.flashfold_dir
-    digested_data_pk = ns.digested_data_pk
+    digested_data_pk = ns.digested_data
     processed_dir = ns.processed_dir
     best_struct_dir = ns.best_struct_dir
     pseudoviewer_dir = ns.pseudoviewer_dir
@@ -176,16 +178,37 @@ if __name__ == '__main__':
                     break
             if valid:
                 list_good_struct.append(struct)
-            if len(list_good_struct) >= 5:
+            if len(list_good_struct) >= 10:
                 break
     
-        if len(list_good_struct) < 5:
+        if len(list_good_struct) < 10:
             print hairpin_acc, len(list_mcfold_l), len(list_good_struct)
             continue
-    
+
+        # from all the good_struct, find the most_representative one
+        representative_struct = ""
+        representative_score = 0
+        for g_s in list_good_struct:
+            op1, cl1 = extract_pairing(g_s.split()[0])
+            score = 0
+            for g_s2 in list_good_struct:
+                if g_s2 != g_s:
+                    op2, cl2 = extract_pairing(g_s2.split()[0])
+                    for opener, closer in op1.iteritems():
+                        if opener in op2:
+                            if op2[opener] == closer:
+                                score += 1
+                    for closer, opener in cl1.iteritems():
+                        if closer in cl2:
+                            if cl2[closer] == opener:
+                                score += 1
+            if score > representative_score:
+                representative_struct = g_s
+                representative_score = score
+
         list_stats = []
     
-        for ind in xrange(len(best_struct.split()[0].strip())):
+        for ind in xrange(len(representative_struct.split()[0].strip())):
             none = len([elem for elem in list_good_struct if elem[ind] == "."])
             opened = len([elem for elem in list_good_struct if elem[ind] == "("])
             closed = len([elem for elem in list_good_struct if elem[ind] == ")"])
@@ -195,9 +218,9 @@ if __name__ == '__main__':
                                    closed=float(closed)/float(len(list_good_struct))))
     
         # build the structure for pseudoviewer
-        stat_struct = [c for c in best_struct.split()[0].strip()]
+        stat_struct = [c for c in representative_struct.split()[0].strip()]
         for ind, s in enumerate(list_stats):
-            if s["not_paired"] > 0.5:
+            if s["not_paired"] > 0.75:
                 in_range = False
                 if ind in range_5p:
                     if str(ind) in open_dict:
@@ -224,28 +247,71 @@ if __name__ == '__main__':
             out_file.write(">{hairpin_acc}\n{seq}\n{struct}".format(hairpin_acc=hairpin_acc,
                                                                     seq=hairpin_seq,
                                                                     struct=best_struct))
-    
+
+        # compute the library_range for the mature (including their complementary nt)
+        range_complementary_3p = []
+        range_complementary_5p = []
+        for i in range_5p:
+            if str(i) in open_dict:
+                range_complementary_3p.append(open_dict[str(i)])
+        for j in range_3p:
+            if str(j) in close_dict:
+                range_complementary_5p.append(close_dict[str(j)])
+
+        min_5p = min((min(range_complementary_5p), min(range_5p)))
+        max_5p = max((max(range_complementary_5p), max(range_5p)))
+        min_3p = min((min(range_complementary_3p), min(range_3p)))
+        max_3p = max((max(range_complementary_3p), max(range_3p)))
+
+        range_complementary_5p = sorted(list(set(range(min_5p, max_5p+1))))
+        range_complementary_3p = sorted(list(set(range(min_3p, max_3p+1))))
+
         to_be_pickled = dict(accession=hairpin_acc,
                              seq=hairpin_seq,
                              best_structure=best_struct,
+                             representative_struct=representative_struct,
                              list_best_structure=list_best_struct,
                              list_valid_structure=list_struct,
                              list_structure_for_bpstats=list_good_struct,
                              list_stats=list_stats,
                              stat_struct="".join(stat_struct),
-                             mature_range=range_5p+range_3p)
-    
+                             mature_range=range_5p+range_3p,
+                             range_complementary_5p=range_complementary_5p,
+                             range_complementary_3p=range_complementary_3p)
+
         with open(os.path.join(best_struct_dir, hairpin_acc,"{acc}.pk".format(acc=hairpin_acc)),
                   'wb') as pickle_file:
             cPickle.dump(to_be_pickled , pickle_file, -1)
-    
+
         with open(os.path.join(best_struct_dir, hairpin_acc, hairpin_acc + ".2d"), 'w') as out_file:
             out_file.write("\n".join(list_good_struct))
-    
-    
+
+        to_be_json = dict(accession=hairpin_acc,
+                          seq=hairpin_seq,
+                          best_structure=best_struct,
+                          representative_struct=representative_struct,
+                          list_best_structure=list_best_struct,
+                          list_valid_structure=list_struct,
+                          list_structure_for_bpstats=list_good_struct,
+                          list_stats=list_stats,
+                          stat_struct="".join(stat_struct),
+                          mature_range=range_5p+range_3p,
+                          range_complementary_5p=range_complementary_5p,
+                          range_complementary_3p=range_complementary_3p)
+
+        # make the json file
+        with open(os.path.join(best_struct_dir, hairpin_acc,"{acc}.json".format(acc=hairpin_acc)),
+                  'wb') as json_file:
+            json.dump(to_be_json, json_file)
+
         # make the file to be used for pseudoviewer
         with open(os.path.join(pseudoviewer_dir, "{acc}.txt".format(acc=hairpin_acc)),
                   'wb') as out_file:
             out_file.write(">{hairpin_acc}\n{seq}\n{struct}".format(hairpin_acc=hairpin_acc,
                                                                     seq=hairpin_seq,
                                                                     struct="".join(stat_struct)))
+
+        best_prefix = "{acc}_{i}".format(acc=hairpin_acc, i=best_index)
+        to_be_copied = [elem for elem in os.listdir(os.path.join(processed_dir, hairpin_acc)) if elem.startswith(best_prefix)]
+        shutil.copy(os.path.join(os.path.join(processed_dir, hairpin_acc, to_be_copied[0])),
+                    os.path.join(os.path.join(best_struct_dir, hairpin_acc, to_be_copied[0])))
