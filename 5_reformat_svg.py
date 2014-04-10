@@ -41,14 +41,7 @@ def convert_to_color_shade(val):
     return int(level)
 
 
-def process_precursor(pk_filepath, svg_filepath, out_filepath):
-    pickled_dict = dict()
-    with open(pk_filepath, 'rb') as pk_f:
-        pickled_dict = cPickle.load(pk_f)
-
-    list_color_lvl = [convert_to_color_shade(elem["not_paired"]) for elem in pickled_dict["list_stats"]]
-    dict_color = dict((str(elem), []) for elem in set(list_color_lvl))
-
+def reformat_svg(svg_filepath, out_filepath, dict_color=dict(), pk_dict=dict(), list_color_lvl=[], add_statistics=True):
     new_svg_content = ""
     with open(svg_filepath, 'rb') as svg_c:
         new_svg_content = svg_c.read()#.replace('font-family="Tahoma"', 'font-family="courier new"')\
@@ -75,7 +68,8 @@ def process_precursor(pk_filepath, svg_filepath, out_filepath):
 
         dict_color[str(list_color_lvl[int(st)-1])].append(dict(subnode=elem,
                                                                index=int(st)-1))
-        elem["onmouseover"] = elem["onmouseover"].replace("')", ", {perc}%')".format(perc=int(pickled_dict["list_stats"][int(st)-1]["not_paired"])*100))
+        if add_statistics:
+            elem["onmouseover"] = elem["onmouseover"].replace("')", ", {perc}%')".format(perc=int(pk_dict["list_stats"][int(st)-1]["not_paired"])*100))
 
     for color, list_subnodes in dict_color.iteritems():
         color_node = etree.SubElement(desired_node,
@@ -85,7 +79,7 @@ def process_precursor(pk_filepath, svg_filepath, out_filepath):
             subnode_index = subnode_dict["index"]
             subnode = subnode_dict["subnode"]
             
-            if subnode_index in pickled_dict["mature_range"]:
+            if subnode_index in pk_dict["mature_range"]:
                 fill_dict = {"stroke": "Blue",
                              "stroke-width": "1"}
             else:
@@ -116,6 +110,36 @@ def process_precursor(pk_filepath, svg_filepath, out_filepath):
     outfile = open(out_filepath, 'w')
     doc.write(outfile)
 
+
+def process_precursor(pk_filepath, svg_filepath, out_path, pv_dir, accession):
+    pickled_dict = dict()
+    with open(pk_filepath, 'rb') as pk_f:
+        pickled_dict = cPickle.load(pk_f)
+
+    list_color_lvl = [convert_to_color_shade(elem["not_paired"]) for elem in pickled_dict.get("list_stats")]
+    dict_color = dict((str(elem), []) for elem in set(list_color_lvl))
+
+    # first do the merged one
+    reformat_svg(svg_filepath,
+                 os.path.join(out_path, accession + ".svg"),
+                 dict_color=dict_color,
+                 pk_dict=pickled_dict,
+                 list_color_lvl=list_color_lvl,
+                 add_statistics=True)
+
+    # now do the individual ones
+    for individual in [elem for elem in os.listdir(pv_dir) if elem.startswith(accession) and \
+                                                              "_" in elem and \
+                                                              elem.endswith(".svg")]:
+        list_color_lvl = [0 for elem in pickled_dict.get("list_stats")]
+        dict_color = {"0":[]}
+        reformat_svg(os.path.join(pv_dir, individual),
+                     os.path.join(out_path, individual),
+                     dict_color=dict_color,
+                     pk_dict=pickled_dict,
+                     list_color_lvl=list_color_lvl,
+                     add_statistics=False)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -129,11 +153,13 @@ if __name__ == '__main__':
     best_struct_dir = ns.best_struct_dir
     out_dir = ns.out_dir
 
-    list_svg = sorted([elem for elem in os.listdir(pseudoviewer_dir) if elem.endswith(".svg")])
+    list_svg = sorted([elem for elem in os.listdir(pseudoviewer_dir) if elem.endswith(".svg") and not "_" in elem])
 
     for svg in sorted(list_svg):
         acc = svg.replace(".svg", "")
         pk_filepath = os.path.join(best_struct_dir, acc, acc + ".pk")
         svg_filepath = os.path.join(pseudoviewer_dir, svg)
-        out_filepath = os.path.join(out_dir, svg)
-        process_precursor(pk_filepath, svg_filepath, out_filepath)
+        out_path = os.path.join(out_dir, acc)
+        if not os.path.exists(out_path):
+            os.makedirs(out_path)
+        process_precursor(pk_filepath, svg_filepath, out_path, pseudoviewer_dir, acc)

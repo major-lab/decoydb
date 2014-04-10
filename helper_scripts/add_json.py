@@ -66,15 +66,23 @@ for acc, infodict in dict_to_be_json_by_acc.iteritems():
 
 with open("/u/leongs/reproduction_projet_naim/rel20/2D/dict_by_name.json", 'wb') as jsn:
     json.dump(dict_to_be_json_by_name, jsn)
-
+ 
 with open("/u/leongs/reproduction_projet_naim/rel20/2D/dict_by_accession.json", 'wb') as jsa:
     json.dump(dict_to_be_json_by_acc, jsa)
-
+ 
 with open("/u/leongs/reproduction_projet_naim/rel20/2D/list_mature.json", 'wb') as jsm:
     json.dump(list_mature_json, jsm)
-
+ 
 with open("/u/leongs/reproduction_projet_naim/rel20/2D/list_precursor.json", 'wb') as jsp:
     json.dump(list_precursor_json, jsp)
-
+ 
 with open("/u/leongs/reproduction_projet_naim/rel20/2D/list_all.json", 'wb') as jsall:
     json.dump(dict(aaData=list_mature_json+list_precursor_json), jsall)
+
+
+
+with open("/u/leongs/reproduction_projet_naim/rel20/2D/available_tags.json", 'wb') as avail_tag:
+    json.dump(sorted(["{acc} - {name}".format(acc=infodict["accession"],
+                                              name=infodict["name"]) \
+                      for acc, infodict in dict_to_be_json_by_acc.iteritems()],
+                     key=lambda x: x.strip().split("-")[0]), avail_tag)

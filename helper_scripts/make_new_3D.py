@@ -74,7 +74,7 @@ for index, acc in enumerate(sorted(os.listdir(best_dir))):
         cmd = ('python {mcsymizer} --db_path {db_path} '
                '--sequence1 {seq} --structure1 "{struct}" '
                '--use_high_res_ncm '
-               '--max_number 1000 '
+               '--max_number 500 '
                '--name {acc}_{i} '
                '--external_library "{f},{pos}" '
                '--timeout 120 > {script_file}').format(mcsymizer=path_mcsymizer,
@@ -82,7 +82,7 @@ for index, acc in enumerate(sorted(os.listdir(best_dir))):
                                                       seq=info_dict["seq"],
                                                       struct=struct,
                                                       acc=acc,
-                                                      i=i,
+                                                      i=i+1,
                                                       f=os.path.join(libaries_dir, acc, acc+".pdb.gz"),
                                                       pos=library_pos,
                                                       script_file=os.path.join(workdir, "script.mcc"))

@@ -37,6 +37,9 @@ if __name__ == '__main__':
     parser.add_argument('--pseudoviewer_dir', action="store", required=True,
                         dest='pseudoviewer_dir',
                         help="The directory where the FASTA type input for pseudoviewer will be put")
+    parser.add_argument('--additional_info_dir', action="store", required=True,
+                        dest='additional_info_dir',
+                        help="The directory where the additional info will be put")
 
     ns = parser.parse_args()
 
@@ -45,6 +48,7 @@ if __name__ == '__main__':
     processed_dir = ns.processed_dir
     best_struct_dir = ns.best_struct_dir
     pseudoviewer_dir = ns.pseudoviewer_dir
+    additional_info_dir = ns.additional_info_dir
     
     list_digested_data = []
     with open(digested_data_pk, 'rb') as dd:
@@ -304,12 +308,28 @@ if __name__ == '__main__':
                   'wb') as json_file:
             json.dump(to_be_json, json_file)
 
-        # make the file to be used for pseudoviewer
+        if not os.path.exists(os.path.join(additional_info_dir, hairpin_acc)):
+            os.makedirs(os.path.join(additional_info_dir, hairpin_acc))
+        with open(os.path.join(additional_info_dir, hairpin_acc,"{acc}.json".format(acc=hairpin_acc)),
+                  'wb') as json_file:
+            json.dump(to_be_json, json_file)
+
+        # make the files to be used for pseudoviewer
+        # start with the merged one
         with open(os.path.join(pseudoviewer_dir, "{acc}.txt".format(acc=hairpin_acc)),
                   'wb') as out_file:
             out_file.write(">{hairpin_acc}\n{seq}\n{struct}".format(hairpin_acc=hairpin_acc,
                                                                     seq=hairpin_seq,
                                                                     struct="".join(stat_struct)))
+
+        # then the individual ones
+        for curr_index, el in enumerate(list_good_struct):
+            with open(os.path.join(pseudoviewer_dir, "{acc}_{i}.txt".format(acc=hairpin_acc, i=curr_index+1)),
+                      'wb') as out_file:
+                out_file.write(">{hairpin_acc}\n{seq}\n{struct}".format(hairpin_acc="{acc}_{i}".format(acc=hairpin_acc,
+                                                                                                       i=curr_index),
+                                                                        seq=hairpin_seq,
+                                                                        struct=el.split()[0]))
 
         best_prefix = "{acc}_{i}".format(acc=hairpin_acc, i=best_index)
         to_be_copied = [elem for elem in os.listdir(os.path.join(processed_dir, hairpin_acc)) if elem.startswith(best_prefix)]
