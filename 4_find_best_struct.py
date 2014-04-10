@@ -327,7 +327,7 @@ if __name__ == '__main__':
             with open(os.path.join(pseudoviewer_dir, "{acc}_{i}.txt".format(acc=hairpin_acc, i=curr_index+1)),
                       'wb') as out_file:
                 out_file.write(">{hairpin_acc}\n{seq}\n{struct}".format(hairpin_acc="{acc}_{i}".format(acc=hairpin_acc,
-                                                                                                       i=curr_index),
+                                                                                                       i=curr_index+1),
                                                                         seq=hairpin_seq,
                                                                         struct=el.split()[0]))
 

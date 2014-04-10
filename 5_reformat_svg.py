@@ -69,7 +69,7 @@ def reformat_svg(svg_filepath, out_filepath, dict_color=dict(), pk_dict=dict(), 
         dict_color[str(list_color_lvl[int(st)-1])].append(dict(subnode=elem,
                                                                index=int(st)-1))
         if add_statistics:
-            elem["onmouseover"] = elem["onmouseover"].replace("')", ", {perc}%')".format(perc=int(pk_dict["list_stats"][int(st)-1]["not_paired"])*100))
+            elem["onmouseover"] = elem["onmouseover"].replace("')", ", {perc}%')".format(perc=int(pk_dict["list_stats"][int(st)-1]["not_paired"]*100)))
 
     for color, list_subnodes in dict_color.iteritems():
         color_node = etree.SubElement(desired_node,
