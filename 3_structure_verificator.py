@@ -223,10 +223,11 @@ def copy_to_out_dir(pdb_filepath, pdb, out_dir):
 
 
 def copy_to_fail_dir(pdb_filepath):
-    dest_path = os.path.join("/u/leongs/reproduction_projet_naim/rel20/3D/failed_processed", os.path.basename(pdb_filepath))
-    shutil.copy(pdb_filepath,
-                dest_path)
-    call_command("gzip " + dest_path)
+    pass
+#     dest_path = os.path.join("/u/leongs/reproduction_projet_naim/rel20/3D/failed_processed", os.path.basename(pdb_filepath))
+#     shutil.copy(pdb_filepath,
+#                 dest_path)
+#     call_command("gzip " + dest_path)
 
 
 def process_pdb(params_dict):

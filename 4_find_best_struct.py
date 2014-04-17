@@ -3,6 +3,7 @@ import cPickle
 import argparse
 import shutil
 import json
+import gzip
 
 def extract_pairing(structure):
     dict_open = dict()
@@ -58,7 +59,7 @@ if __name__ == '__main__':
         hairpin_name = hairpin_dict['name']
         hairpin_acc = hairpin_dict['accession']
         hairpin_seq = hairpin_dict['sequence']
-    
+
         if not os.path.exists(os.path.join(processed_dir, hairpin_acc)):
             continue
     
@@ -163,9 +164,16 @@ if __name__ == '__main__':
         if os.path.exists(os.path.join("/u/leongs/reproduction_projet_naim/rel20/2D/alternative_flashfold", hairpin_acc)):
             with open(os.path.join("/u/leongs/reproduction_projet_naim/rel20/2D/alternative_flashfold", hairpin_acc), 'rb') as mcfold_o:
                 list_mcfold_l = [elem.strip() for elem in mcfold_o.readlines()]
-    
+
+        if os.path.exists(os.path.join("/u/leongs/reproduction_projet_naim/rel20/new_2D/tmp/success",
+                                       hairpin_acc + ".gz")):
+            gzip_f = gzip.open(os.path.join("/u/leongs/reproduction_projet_naim/rel20/new_2D/tmp/success",
+                                            hairpin_acc + ".gz"), 'rb')
+            list_mcfold_l = [elem.strip() for elem in gzip_f.readlines()]
+            gzip_f.close()
+
         list_good_struct = []
-        for struct in list_mcfold_l:
+        for struct in sorted(list_mcfold_l, key=lambda x: float(x.strip().split()[1])):
             this_open, this_close = extract_pairing(struct.split()[0])
             valid = True
             for op in range_5p:
@@ -184,10 +192,14 @@ if __name__ == '__main__':
                 list_good_struct.append(struct)
             if len(list_good_struct) >= 10:
                 break
-    
+
         if len(list_good_struct) < 10:
             print hairpin_acc, len(list_mcfold_l), len(list_good_struct)
             continue
+
+        #only keep top 10
+#         list_good_struct.sort(key=lambda x: float(x.strip().split()[1]))
+#         list_good_struct = list_good_struct[:10]
 
         # from all the good_struct, find the most_representative one
         representative_struct = ""
@@ -211,7 +223,7 @@ if __name__ == '__main__':
                 representative_score = score
 
         list_stats = []
-    
+
         for ind in xrange(len(representative_struct.split()[0].strip())):
             none = len([elem for elem in list_good_struct if elem[ind] == "."])
             opened = len([elem for elem in list_good_struct if elem[ind] == "("])

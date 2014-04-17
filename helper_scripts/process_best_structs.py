@@ -3,13 +3,13 @@ import cPickle
 import shutil
 
 
-best_dir = "/u/leongs/reproduction_projet_naim/rel20/3D/best_struct"
+best_dir = "/u/leongs/reproduction_projet_naim/rel20/3D/best_struct_bis"
 tmp_dir = "/tmp"
-workdir = "/u/leongs/reproduction_projet_naim/rel20/3D_bis.bak/processed"
-pbs_dir = "/u/leongs/reproduction_projet_naim/rel20/3D_bis.bak/processed/pbs"
+workdir = "/u/leongs/reproduction_projet_naim/rel20/3D_bis/processed"
+pbs_dir = "/u/leongs/reproduction_projet_naim/rel20/3D_bis/processed/pbs"
 digested_data_pk = "/u/leongs/reproduction_projet_naim/rel20/2D/digested_data.pk"
-raw_dir = "/u/leongs/reproduction_projet_naim/rel20/3D_bis.bak/new_decoy"
-job_name = "01_apr_{index}"
+raw_dir = "/u/leongs/reproduction_projet_naim/rel20/3D_bis/tmp"
+job_name = "14_apr_{index}"
 
 def write_pbs_script(list_command, list_hairpins, index):
     curr_index = index%3 + 1
@@ -85,7 +85,7 @@ for index, hairpin_dict in enumerate(list_digested_data):
     list_hairpins.append(hairpin_acc)
 
     hairpin_main_dir = os.path.join(tmp_dir, hairpin_acc)
-    hairpin_out_dir = os.path.join(workdir, 'decoy', hairpin_acc, "out")
+    hairpin_out_dir = os.path.join(workdir, 'tmp', hairpin_acc, "out")
 
     local_list_command = []
     with open(mcfold_output, 'rb') as mcfold_o:
@@ -105,27 +105,27 @@ for index, hairpin_dict in enumerate(list_digested_data):
                     local_list_command.append("cd {dest}".format(dest=destination_dir))
                     local_list_command.append("gunzip " + os.path.join(destination_dir, "*.pdb.gz"))
 
-                    local_list_command.append(('python /u/leongs/git/various-codes/DecoyDB/3_structure_verificator.py '
+                    local_list_command.append(('python /u/leongs/git/decoydb/3_structure_verificator.py '
                                                '--hairpin_seq "{seq}" '
                                                '--mature5p_seq "{mature_5p}" '
                                                '--mature3p_seq "{mature_3p}" '
                                                '--structure "{struct}" '
                                                '--decoy_dir {subdecoy_dir} '
-                                               '--refine_script /u/leongs/git/various-codes/DecoyDB/minimization_scripts/refine.bash '
-                                               '--relieve_script /u/leongs/git/various-codes/DecoyDB/minimization_scripts/relieve.bash '
-                                               '--brushup_script /u/leongs/git/various-codes/DecoyDB/minimization_scripts/brushup.bash '
-                                               '--out_dir {out} --threads 1 ').format(seq=hairpin_seq,
-                                                                                      struct=structure,
-                                                                                      mature_5p=mat_5p,
-                                                                                      mature_3p=mat_3p,
-                                                                                      out=hairpin_out_dir,
-                                                                                      subdecoy_dir=destination_dir))
+                                               '--refine_script /u/leongs/git/decoydb/minimization_scripts/refine.bash '
+                                               '--relieve_script /u/leongs/git/decoydb/minimization_scripts/relieve.bash '
+                                               '--brushup_script /u/leongs/git/decoydb/minimization_scripts/brushup.bash '
+                                               '--out_dir {out} ').format(seq=hairpin_seq,
+                                                                          struct=structure,
+                                                                          mature_5p=mat_5p,
+                                                                          mature_3p=mat_3p,
+                                                                          out=hairpin_out_dir,
+                                                                          subdecoy_dir=destination_dir))
 
                     local_list_command.append("rm -rf " + destination_dir)
 
     if local_list_command:
         list_command.append("mkdir {decoy_dir}".format(decoy_dir=hairpin_main_dir))
-        list_command.append("mkdir {decoy_dir}".format(decoy_dir=os.path.join(workdir, 'decoy', hairpin_acc)))
+        list_command.append("mkdir {decoy_dir}".format(decoy_dir=os.path.join(workdir, 'tmp', hairpin_acc)))
         list_command.append("mkdir {hairpin_out_dir}".format(hairpin_out_dir=hairpin_out_dir))
         list_command.extend(local_list_command)
 

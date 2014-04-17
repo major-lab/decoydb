@@ -84,7 +84,7 @@ def reformat_svg(svg_filepath, out_filepath, dict_color=dict(), pk_dict=dict(), 
                              "stroke-width": "1"}
             else:
                 fill_dict = {"stroke": "none"}
-            
+
             g_node = etree.SubElement(color_node,
                                       "g",
                                       **fill_dict)
