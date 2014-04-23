@@ -154,24 +154,6 @@ if __name__ == '__main__':
             range_3p = range(threep_start, threep_end)
     
     
-        flashfold_dir_alt = "/u/leongs/reproduction_projet_naim/rel20/2D/filtered_alternative"
-        mcfold_output = os.path.join(flashfold_dir_alt, hairpin_acc)
-    
-        if os.path.exists(mcfold_output):
-            with open(mcfold_output, 'rb') as mcfold_o:
-                list_mcfold_l = [elem.strip() for elem in mcfold_o.readlines()]
-    
-        if os.path.exists(os.path.join("/u/leongs/reproduction_projet_naim/rel20/2D/alternative_flashfold", hairpin_acc)):
-            with open(os.path.join("/u/leongs/reproduction_projet_naim/rel20/2D/alternative_flashfold", hairpin_acc), 'rb') as mcfold_o:
-                list_mcfold_l = [elem.strip() for elem in mcfold_o.readlines()]
-
-        if os.path.exists(os.path.join("/u/leongs/reproduction_projet_naim/rel20/new_2D/tmp/success",
-                                       hairpin_acc + ".gz")):
-            gzip_f = gzip.open(os.path.join("/u/leongs/reproduction_projet_naim/rel20/new_2D/tmp/success",
-                                            hairpin_acc + ".gz"), 'rb')
-            list_mcfold_l = [elem.strip() for elem in gzip_f.readlines()]
-            gzip_f.close()
-
         list_good_struct = []
         for struct in sorted(list_mcfold_l, key=lambda x: float(x.strip().split()[1])):
             this_open, this_close = extract_pairing(struct.split()[0])
@@ -194,12 +176,8 @@ if __name__ == '__main__':
                 break
 
         if len(list_good_struct) < 10:
-            print hairpin_acc, len(list_mcfold_l), len(list_good_struct)
+            print hairpin_acc, best_struct, hairpin_seq, mat_5p, mat_3p
             continue
-
-        #only keep top 10
-#         list_good_struct.sort(key=lambda x: float(x.strip().split()[1]))
-#         list_good_struct = list_good_struct[:10]
 
         # from all the good_struct, find the most_representative one
         representative_struct = ""
