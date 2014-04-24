@@ -181,9 +181,6 @@ def get_pdb_vector_dict(pdb_file, start_5p, end_5p, start_3p, end_3p, process_na
                         list_lines.append(line.strip())
                         list_d = [float(line[30:38].strip()), float(line[38:46].strip()), float(line[46:54].strip())]
 
-#             if list_a and list_b and list_c and list_d:
-#                 break
-
     try:
         vector_dict = {"AtoB": math.sqrt(sum([(list_a[ind]-list_b[ind])**2 for ind in xrange(3)])),
                        "AtoC": math.sqrt(sum([(list_a[ind]-list_c[ind])**2 for ind in xrange(3)])),
@@ -192,6 +189,7 @@ def get_pdb_vector_dict(pdb_file, start_5p, end_5p, start_3p, end_3p, process_na
                        "BtoD": math.sqrt(sum([(list_b[ind]-list_d[ind])**2 for ind in xrange(3)])),
                        "CtoD": math.sqrt(sum([(list_c[ind]-list_d[ind])**2 for ind in xrange(3)]))}
     except Exception as e:
+        # print the various indices to find out which one is missing
         sys.stderr.write('{p} {l}\n'.format(p=process_name, l=list_indexes)) 
         sys.stderr.write(pdb_file + "\n")
         sys.stderr.write("\n".join(list_lines) + "\n")
@@ -201,7 +199,6 @@ def get_pdb_vector_dict(pdb_file, start_5p, end_5p, start_3p, end_3p, process_na
         sys.stderr.write("\n".join([str(elem) for elem in list_d]) + "\n")
         sys.stderr.write("###############################\n")
         vector_dict = dict()
-        copy_to_fail_dir(pdb_file)
 
     return vector_dict
 
@@ -222,14 +219,6 @@ def copy_to_out_dir(pdb_filepath, pdb, out_dir):
     call_command("gzip " + os.path.join(out_dir, pdb))
 
 
-def copy_to_fail_dir(pdb_filepath):
-    pass
-#     dest_path = os.path.join("/u/leongs/reproduction_projet_naim/rel20/3D/failed_processed", os.path.basename(pdb_filepath))
-#     shutil.copy(pdb_filepath,
-#                 dest_path)
-#     call_command("gzip " + dest_path)
-
-
 def process_pdb(params_dict):
     decoy_dir = params_dict["decoy_dir"]
     pdb = params_dict["pdb"]
@@ -247,43 +236,26 @@ def process_pdb(params_dict):
         out, err = call_command("{relieve_script} {pdb_filepath}".format(relieve_script=relieve_script,
                                                                          pdb_filepath=pdb_filepath),
                                 echo=False)
-#         out, err = call_command("python {relieve} --pdb_file {pdb_filepath} --workdir {workdir}".format(relieve=relieve_script,
-#                                                                                                         pdb_filepath=pdb_filepath,
-#                                                                                                         workdir=decoy_dir),
-#                                 echo=False)
         if err:
             sys.stderr.write("####################### relieve ###################\n")
             sys.stderr.write(pdb_filepath + "\n")
             sys.stderr.write(err + "\n")
             sys.stderr.write("#######################\n")
         pdb_vector_dict = get_pdb_vector_dict(pdb_filepath, start_5p, end_5p, start_3p, end_3p, 'relieve')
-#         if (not pdb_vector_dict is None) and compare_vectors(vector_dict, pdb_vector_dict, RELIEVE_THRESHOLD):
         if True:
             out, err = call_command("{refine_script} {pdb_filepath}".format(refine_script=refine_script,
                                                                             pdb_filepath=pdb_filepath),
                                     echo=False)
-#             out, err = call_command("python {refine_script} --pdb_file {pdb_filepath} --workdir {workdir}".format(refine_script=refine_script,
-#                                                                                                                   pdb_filepath=pdb_filepath,
-#                                                                                                                   workdir=decoy_dir),
-#                                     echo=False)
             if err:
                 sys.stderr.write("####################### refine ###################\n")
                 sys.stderr.write(pdb_filepath + "\n")
                 sys.stderr.write(err + "\n")
                 sys.stderr.write("#######################\n")
             pdb_vector_dict = get_pdb_vector_dict(pdb_filepath, start_5p, end_5p, start_3p, end_3p, 'refine')
-#             if (not pdb_vector_dict is None) and compare_vectors(vector_dict, pdb_vector_dict, THRESHOLD):
-#                 copy_to_out_dir(pdb_filepath, pdb, out_dir)
-#                 return True
-#             elif (not pdb_vector_dict is None) and compare_vectors(vector_dict, pdb_vector_dict, REFINE_THRESHOLD):
             if True:
                 out, err = call_command("{brushup_script} {pdb_filepath}".format(brushup_script=brushup_script,
                                                                                  pdb_filepath=pdb_filepath),
                                         echo=False)
-#                 out, err = call_command("python {brushup} --pdb_file {pdb_filepath} --workdir {workdir}".format(brushup=brushup_script,
-#                                                                                                                 pdb_filepath=pdb_filepath,
-#                                                                                                                 workdir=decoy_dir),
-#                                         echo=False)
                 if err:
                     sys.stderr.write("####################### brushup ###################\n")
                     sys.stderr.write(pdb_filepath + "\n")
@@ -362,8 +334,6 @@ if __name__ == '__main__':
     # not sure it's the best, we can probably use the shortest distance computed with start_5p, end_5p, start_3p, end_3p
     # instead of just chosing the mature seq
     vector_dict = get_vector_dict(mature5p_seq, mature3p_seq)
-#     print start_5p, end_5p, start_3p, end_3p
-#     print min([(end_5p-start_5p), (end_3p-start_3p)])
 #     vector_dict = get_vector_dict(min([(end_5p-start_5p), (end_3p-start_3p)]))
 
     list_params_dict = [dict(decoy_dir=decoy_dir,
