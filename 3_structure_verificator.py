@@ -349,7 +349,8 @@ if __name__ == '__main__':
     if list_params_dict:
         found = False
         for params_dict in list_params_dict:
-            if found:
+            # do not verify if already found a valid structure
+            if found or [dir_content for dir_content in os.listdir(out_dir) if ".pdb" in dir_content]:
                 break
             else:
                 found = process_pdb(params_dict)
