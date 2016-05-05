@@ -84,7 +84,6 @@ if __name__ == '__main__':
     
     for f in [elem for elem in sorted(os.listdir(workdir)) if 'pdb_2' in elem]:
         os.rename(os.path.join(workdir, f), os.path.join(workdir, f.replace('pdb_2', 'pdb.min')))
-            
 
     mcrmsd_out, mcsrmsd_err = call_command('{MCRMSD_exec_path} -n "{pdb_file}" "{pdb_file}.min"'.format(MCRMSD_exec_path='/soft/bioinfo/linux/mcrms-dev/bin/MC-RMSD', 
                                                                                                         pdb_file=pdb_file))
