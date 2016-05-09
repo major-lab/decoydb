@@ -10,7 +10,8 @@
 #
 
 """
-Command-line utility to generate an MC-FlashFold mask to make sure the part where the mature are either unpaired or opening/closing bracket
+Command-line utility to generate an MC-FlashFold mask to make sure the part where the mature are either
+unpaired or opening/closing bracket
 """
 
 import os
