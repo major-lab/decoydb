@@ -2,11 +2,11 @@ import os
 import cPickle
 
 
-flashfold_dir = "/u/leongs/reproduction_projet_naim/rel20/2D/filtered"
-workdir = "/u/leongs/reproduction_projet_naim/rel20/3D"
-pbs_dir = "/u/leongs/reproduction_projet_naim/rel20/3D/pbs"
-digested_data_pk = "/u/leongs/reproduction_projet_naim/rel20/2D/digested_data.pk"
-path_mcsymizer = "/u/leongs/workspace/mcweb/script/mcsymizer.py"
+flashfold_dir = "/u/mailhoto/workdir_decoy/flashfold_filtered"
+workdir = "/u/mailhoto/workdir_decoy/3D"
+pbs_dir = "/u/mailhoto/workdir_decoy/3D/pbs"
+digested_data_pk = "/u/mailhoto/workdir_decoy/digested_data.pk"
+path_mcsymizer = "/u/mailhoto/decoydb/mcsymizer.py"
 
 # list_to_process = []
 # with open("/u/leongs/reproduction_projet_naim/rel20/3D/failed_3D.txt", 'rb') as failed:
@@ -49,7 +49,7 @@ def write_pbs_script(list_command, name, index):
                              "#PBS -l nodes=1:ppn=12,walltime=10000:00:00\n"
                              "#PBS -o {stdout_filename}\n"
                              "#PBS -e {stderr_filename}\n"
-                             "/u/leongs/reproduction_projet_naim/rel20/3D/pbs/{name}/launch.bash 12").format(stdout_filename=os.path.join(pbs_subdir, "out.txt"),
+                             "/u/mailhoto/workdir_decoy/3D/pbs/{name}/launch.bash 12").format(stdout_filename=os.path.join(pbs_subdir, "out.txt"),
                                                                                                             stderr_filename=os.path.join(pbs_subdir, "err.txt"),
                                                                                                             name=str(index%modulo_val + 1)))
 
@@ -58,13 +58,13 @@ with open(digested_data_pk, 'rb') as dd:
         list_digested_data = cPickle.load(dd)
 
 list_already_computed_decoy = []
-dec_dir = "/u/leongs/reproduction_projet_naim/rel20/3D"
+dec_dir = "/u/mailhoto/workdir_decoy/3D"
 for dec in ["completed_decoy_11_feb", "completed_decoy_17_feb", "completed_decoy_19_feb", "completed_decoy_21_feb", "completed_decoy_24_feb"]:
     for acc in os.listdir(os.path.join(dec_dir, dec)):
         list_already_computed_decoy.extend(os.listdir(os.path.join(dec_dir, dec, acc)))
 
 dict_sum_content = dict()
-dec_dir = "/u/leongs/reproduction_projet_naim/rel20/3D"
+dec_dir = "/u/mailhoto/workdir_decoy/3D"
 for dec in ["processed_11_feb", "processed_17_feb", "processed_19_feb", "processed_21_feb"]:
     list_acc = os.listdir(os.path.join(dec_dir, dec, "decoy"))
     for acc in list_acc:
@@ -84,7 +84,7 @@ for index, hairpin_dict in enumerate(list_digested_data):
     hairpin_seq = hairpin_dict['sequence']
     mcfold_output = os.path.join(flashfold_dir, hairpin_acc)
 
-    hairpin_main_dir = os.path.join("/u/leongs/reproduction_projet_naim/rel20/3D/decoys_100", hairpin_acc)
+    hairpin_main_dir = os.path.join("/u/mailhoto/workdir_decoy/3D/decoys_100", hairpin_acc)
 
     local_list_command = []
     with open(mcfold_output, 'rb') as mcfold_o:
@@ -108,7 +108,7 @@ for index, hairpin_dict in enumerate(list_digested_data):
                        '--max_number 100 '
                        '--name {acc}_{i} '
                        '--timeout 30 > {script_file}').format(mcsymizer=path_mcsymizer,
-                                                              db_path="/u/leongs/Downloads/MC-Sym_Linux/MCSYM-DB",
+                                                              db_path="/soft/bioinfo/share/mcsym/db/mcsymdb-4.2.1.bin.gz",
                                                               seq=hairpin_seq,
                                                               struct=structure,
                                                               acc=hairpin_acc,
