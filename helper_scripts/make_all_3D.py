@@ -58,17 +58,17 @@ with open(digested_data_pk, 'rb') as dd:
         list_digested_data = cPickle.load(dd)
 
 list_already_computed_decoy = []
-dec_dir = "/u/mailhoto/workdir_decoy/3D"
-for dec in ["completed_decoy_11_feb", "completed_decoy_17_feb", "completed_decoy_19_feb", "completed_decoy_21_feb", "completed_decoy_24_feb"]:
-    for acc in os.listdir(os.path.join(dec_dir, dec)):
-        list_already_computed_decoy.extend(os.listdir(os.path.join(dec_dir, dec, acc)))
+# dec_dir = "/u/mailhoto/workdir_decoy/3D"
+# for dec in ["completed_decoy_11_feb", "completed_decoy_17_feb", "completed_decoy_19_feb", "completed_decoy_21_feb", "completed_decoy_24_feb"]:
+#     for acc in os.listdir(os.path.join(dec_dir, dec)):
+#         list_already_computed_decoy.extend(os.listdir(os.path.join(dec_dir, dec, acc)))
 
 dict_sum_content = dict()
-dec_dir = "/u/mailhoto/workdir_decoy/3D"
-for dec in ["processed_11_feb", "processed_17_feb", "processed_19_feb", "processed_21_feb"]:
-    list_acc = os.listdir(os.path.join(dec_dir, dec, "decoy"))
-    for acc in list_acc:
-        dict_sum_content[acc] = dict_sum_content.get(acc, 0) + len(os.listdir(os.path.join(dec_dir, dec, "decoy", acc, "out")))
+# dec_dir = "/u/mailhoto/workdir_decoy/3D"
+# for dec in ["processed_11_feb", "processed_17_feb", "processed_19_feb", "processed_21_feb"]:
+#     list_acc = os.listdir(os.path.join(dec_dir, dec, "decoy"))
+#     for acc in list_acc:
+#         dict_sum_content[acc] = dict_sum_content.get(acc, 0) + len(os.listdir(os.path.join(dec_dir, dec, "decoy", acc, "out")))
 
 for k, v in dict_sum_content.iteritems():
     if v > 0:
