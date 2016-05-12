@@ -26,7 +26,7 @@ def write_pbs_script(list_command, name, index):
             commands = ('#!/bin/sh\n'
                         '#PBS -N {name}\n'
                         '#PBS -l walltime=10000:00:00\n'
-                        'export MCSYM_DB=/soft/bioinfo/share/mcsym/db/mcsymdb-4.2.1.bin.gz\n'
+                        'export MCSYM_DB=/u/mailhoto/MCSYM-DB\n'
                         '{commands}').format(name=name,
                                              commands="\n".join(list_command))
 
@@ -108,7 +108,7 @@ for index, hairpin_dict in enumerate(list_digested_data):
                        '--max_number 100 '
                        '--name {acc}_{i} '
                        '--timeout 30 > {script_file}').format(mcsymizer=path_mcsymizer,
-                                                              db_path="/soft/bioinfo/share/mcsym/db/mcsymdb-4.2.1.bin.gz",
+                                                              db_path="/u/mailhoto/MCSYM-DB",
                                                               seq=hairpin_seq,
                                                               struct=structure,
                                                               acc=hairpin_acc,
