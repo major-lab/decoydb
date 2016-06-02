@@ -26,7 +26,7 @@ def write_pbs_script(list_command, name, index):
             commands = ('#!/bin/sh\n'
                         '#PBS -N {name}\n'
                         '#PBS -l walltime=10000:00:00\n'
-                        'export MCSYM_DB=/u/mailhoto/MCSYM-DB\n'
+                        'export MCSYM_DB=/soft/bioinfo/share/mcsym/db/mcsymdb-4.2.1.bin.gz\n'
                         '{commands}').format(name=name,
                                              commands="\n".join(list_command))
 
